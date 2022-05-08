@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <span>
+            呵呵{{name}}
+        </span>
+        <input type="text" v-model="name">
+        <span>搞笑{{more.like}}</span>
+        <input type="text" v-model="more.like">
+    </div>
+    <script>
+        const vm = new Vue({
+            el:"#app",
+            data:{
+                name:'kkk',
+                more:{
+                    like:'ccc'
+                }
+            }
+        })
+        // console.log(vm)
+    </script>
+</body>
+</html>
