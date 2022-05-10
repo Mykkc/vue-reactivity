@@ -5,6 +5,7 @@ class Vue{
         Compile(obj_instance.el,this)
     }
 }
+//数据监听
 function Observe(data_instance) {
     if (!data_instance || typeof data_instance !== 'object') {
         return
@@ -21,9 +22,11 @@ function Observe(data_instance) {
             configurable: true,
             get() {
                 console.log(`读取了属性${key}=>>>${value}`)
-                Dependency.temp && console.log(Dependency.temp)
                 // 添加订阅者到依赖实例数组     Dependency.temp已经是每一个key值得订阅者实例
                 Dependency.temp && dependency.addSub(Dependency.temp)
+                if (Dependency.temp) {
+                    console.log(Dependency.temp)
+                }
                 return value
             },
             set(newValue) {
@@ -74,6 +77,34 @@ function Compile(element, vm) {
                 // console.log(node.nodeValue)
             }
             return
+        }
+        // 处理v-model
+        if (node.nodeType === 1 && node.nodeName === 'INPUT') {
+            // 获取v-model 
+            const attr = Array.from(node.attributes)
+            attr.forEach(res => {
+                // 判断v-model 节点
+                if (res.nodeName === 'v-model') {
+                    // 取到对应的key值
+                    const value = res.nodeValue.split('.').reduce((total,current)=>total[current],vm.$data)
+                    node.value = value
+                    // 添加订阅者
+                    new Watcher(vm, res.nodeValue, newValue => {
+                        node.value = newValue
+                    })
+                    //处理input value与视图绑定
+                    node.addEventListener('input', e => {
+                        // [more,like]
+                        const arr1 = res.nodeValue.split('.')
+                        //[more]
+                        const arr2 = arr1.slice(0, arr1.length - 1)
+                        //vm.$data.more
+                        const final = arr2.reduce((total,current)=>total[current],vm.$data)
+                        // vm.$data.more['like']
+                        final[arr1[arr1.length-1]]=e.target.value
+                    })
+                }
+            })
         }
         node.childNodes.forEach(child=>fragment_compile(child))
     }
